@@ -7,7 +7,8 @@
   "scripts": {
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "icons": "./scripts/build-icons.sh"
+    "icons": "./scripts/build-icons.sh",
+    "package": "bun test && bun run typecheck && bun scripts/package.js"
   },
   "devDependencies": {
     "@types/bun": "latest",

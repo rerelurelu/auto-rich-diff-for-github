@@ -62,9 +62,13 @@ GitHub 側の既定表示は source diff なので、自動で切り替えるの
 
 ```sh
 bun install
-bun test        # diff-toggle.js の単体テスト (happy-dom で DOM を組み立てる)
+bun test           # diff-toggle.js の単体テスト (happy-dom で DOM を組み立てる)
 bun run typecheck  # JSDoc の型注釈を tsc --checkJs で検証する
+bun run icons      # icons/*.svg から PNG を書き出す
+bun run package    # テストと型チェックを通してから提出用の ZIP を作る
 ```
+
+`bun run package` が作る ZIP には `dist/` 以下に出力する。同梱するファイルは `manifest.json` からの参照を辿って決めるため、`content_scripts` や `default_popup` にファイルを足せば自動で入る。手で並べると入れ忘れに気づけず、テストや設定ファイルを巻き込む事故も起きるため。参照先が実在しない場合はエラーで止める。
 
 型は TypeScript のファイルではなく JSDoc で書く。ストアに提出する ZIP の中身とリポジトリのソースを一致させ、トランスパイル後のコードを審査に出さないため。
 
