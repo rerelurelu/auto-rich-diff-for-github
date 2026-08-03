@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!--
+    ポップアップに置いたセグメント切替と同じ形。右側 (rich diff) が選ばれている状態を表す。
+    48px 以上で使う版。中に入れた行は 32px 以下では潰れるため icon-small.svg を使う。
+  -->
+  <defs>
+    <clipPath id="segment">
+      <rect x="16" y="38" width="96" height="52" rx="16"/>
+    </clipPath>
+  </defs>
+
+  <rect width="128" height="128" rx="28" fill="#1e1e2e"/>
+
+  <rect x="16" y="38" width="96" height="52" rx="16" fill="#313244"/>
+  <rect x="64" y="38" width="48" height="52" fill="#94e2d5" clip-path="url(#segment)"/>
+
+  <!-- 左: source diff の生テキスト -->
+  <g fill="#cdd6f4" opacity=".6">
+    <rect x="28" y="55" width="24" height="6" rx="3"/>
+    <rect x="28" y="67" width="17" height="6" rx="3"/>
+  </g>
+
+  <!-- 右: rich diff の見出しと本文 -->
+  <g fill="#1e1e2e">
+    <rect x="76" y="53" width="24" height="9" rx="4.5"/>
+    <rect x="76" y="67" width="17" height="6" rx="3"/>
+  </g>
+</svg>

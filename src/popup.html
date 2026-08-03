@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title data-i18n="extName">Auto Rich Diff for GitHub</title>
+    <style>
+      /* 配色は Catppuccin (暗い側は Mocha、明るい側は Latte) から取る */
+      :root {
+        color-scheme: light dark;
+        --fg: #4c4f69; /* Latte Text */
+        --fg-muted: #6c6f85; /* Latte Subtext0 */
+        --bg: #eff1f5; /* Latte Base */
+        --border: #bcc0cc; /* Latte Surface1 */
+        --accent: #179299; /* Latte Teal */
+        --on-accent: #ffffff; /* アクセントの上に乗る文字 */
+        --track: #bcc0cc;
+        --segment-bg: #e6e9ef; /* Latte Mantle */
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --fg: #cdd6f4; /* Mocha Text */
+          --fg-muted: #a6adc8; /* Mocha Subtext0 */
+          --bg: #1e1e2e; /* Mocha Base */
+          --border: #45475a; /* Mocha Surface1 */
+          --accent: #94e2d5; /* Mocha Teal */
+          --on-accent: #1e1e2e; /* Mocha Base */
+          --track: #45475a;
+          --segment-bg: #181825; /* Mocha Mantle */
+        }
+      }
+
+      /*
+        角は丸めない。html の背景はキャンバス背景としてビューポート全体に広がるため
+        border-radius が効かず、body だけ丸めても角の外に Chrome が描く色が残る。
+      */
+      html {
+        background: var(--bg);
+      }
+
+      body {
+        width: 252px;
+        margin: 0;
+        padding: 14px;
+        background: var(--bg);
+        color: var(--fg);
+        font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      label {
+        cursor: pointer;
+      }
+
+      hr {
+        margin: 14px 0;
+        border: 0;
+        border-top: 1px solid var(--border);
+      }
+
+      /* チェックボックスをスイッチの見た目にする */
+      .switch {
+        position: relative;
+        flex: none;
+        width: 34px;
+        height: 20px;
+        margin: 0;
+        border-radius: 10px;
+        background: var(--track);
+        appearance: none;
+        cursor: pointer;
+        transition: background 120ms ease-in-out;
+      }
+
+      /*
+        つまみは地の側の色を使う。白で固定すると、オンにしたとき明るいアクセントの上に
+        白が乗ってつまみの位置が読めなくなる。
+      */
+      .switch::after {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--fg);
+        content: "";
+        transition: transform 120ms ease-in-out, background 120ms ease-in-out;
+      }
+
+      .switch:checked {
+        background: var(--accent);
+      }
+
+      .switch:checked::after {
+        background: var(--on-accent);
+        transform: translateX(14px);
+      }
+
+      .switch:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      .section-label {
+        margin: 0 0 8px;
+      }
+
+      /* ラジオを隠し、ラベルをセグメントとして並べる */
+      .segmented {
+        display: flex;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--segment-bg);
+        overflow: hidden;
+      }
+
+      .segmented input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .segmented label {
+        flex: 1;
+        padding: 5px 0;
+        color: var(--fg-muted);
+        text-align: center;
+        transition: background 120ms ease-in-out;
+      }
+
+      .segmented label:last-of-type {
+        border-left: 1px solid var(--border);
+      }
+
+      /* 選択中は地の明暗を反転させる。背景の濃淡だけの差では、どちらが選ばれているか読み取れない */
+      .segmented input:checked + label {
+        background: var(--accent);
+        color: var(--on-accent);
+        font-weight: 600;
+      }
+
+      .segmented input:disabled + label {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      .segmented input:focus-visible + label {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+      }
+
+      #status {
+        margin: 12px 0 0;
+        min-height: 1.5em;
+        color: var(--fg-muted);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- テキストは popup.js が _locales の内容で置き換える。ここに書いてあるのは既定のロケール。 -->
+    <div class="row">
+      <label for="always-rich" data-i18n="alwaysRich">Always open in rich diff</label>
+      <input class="switch" type="checkbox" id="always-rich" />
+    </div>
+
+    <hr />
+
+    <p class="section-label" id="page-mode-label" data-i18n="pageDisplay">This page</p>
+    <div class="segmented" role="radiogroup" aria-labelledby="page-mode-label">
+      <input type="radio" name="page-mode" id="mode-source" value="source" disabled />
+      <label for="mode-source">Source</label>
+      <input type="radio" name="page-mode" id="mode-rich" value="rich" disabled />
+      <label for="mode-rich">Rich</label>
+    </div>
+
+    <p id="status" role="status"></p>
+
+    <!-- 差分ページかどうかの判定を content script と同じ実装で行うため読み込む -->
+    <script src="diff-toggle.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

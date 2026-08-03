@@ -1,0 +1,60 @@
+{
+  "extName": {
+    "message": "Auto Rich Diff for GitHub",
+    "description": "Extension name shown in the Chrome Web Store and the extensions page."
+  },
+  "extDescription": {
+    "message": "Switches Markdown files to GitHub's rich diff in bulk when you open a pull request diff.",
+    "description": "Extension description shown in the Chrome Web Store."
+  },
+  "actionTitle": {
+    "message": "Auto Rich Diff",
+    "description": "Tooltip on the toolbar icon."
+  },
+  "alwaysRich": {
+    "message": "Always open in rich diff",
+    "description": "Label for the switch that turns on automatic switching."
+  },
+  "pageDisplay": {
+    "message": "This page",
+    "description": "Label above the Source / Rich segmented control."
+  },
+  "showingRich": {
+    "message": "$count$ Markdown files in rich diff",
+    "description": "Shown under the segmented control when every Markdown file is in rich diff.",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "showingSource": {
+    "message": "$count$ Markdown files in source diff",
+    "description": "Shown under the segmented control when every Markdown file is in source diff.",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "showingMixed": {
+    "message": "$rich$ rich / $source$ source",
+    "description": "Shown under the segmented control when the Markdown files are split between both.",
+    "placeholders": {
+      "rich": { "content": "$1", "example": "2" },
+      "source": { "content": "$2", "example": "1" }
+    }
+  },
+  "notGitHub": {
+    "message": "Open a GitHub pull request",
+    "description": "Shown when the active tab is not on github.com."
+  },
+  "notDiffPage": {
+    "message": "Open the Files changed tab",
+    "description": "Shown when the active tab is on GitHub but not on a pull request diff."
+  },
+  "needsReload": {
+    "message": "Reload the page",
+    "description": "Shown on a diff page where the content script has not been injected yet."
+  },
+  "noMarkdown": {
+    "message": "No Markdown files on this page",
+    "description": "Shown when the diff contains no Markdown files."
+  },
+  "switchFailed": {
+    "message": "Could not switch",
+    "description": "Shown when switching the display failed."
+  }
+}

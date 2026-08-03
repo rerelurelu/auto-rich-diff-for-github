@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!--
+    16px と 32px 用。icon.svg の中に入れた行は縮小すると 1px を割って消えるため、
+    セグメントの分割だけを残し、枠と余白を太くして輪郭を保つようにしている。
+  -->
+  <defs>
+    <clipPath id="segment">
+      <rect x="12" y="34" width="104" height="60" rx="18"/>
+    </clipPath>
+  </defs>
+
+  <rect width="128" height="128" rx="28" fill="#1e1e2e"/>
+
+  <rect x="12" y="34" width="104" height="60" rx="18" fill="#383a4d"/>
+  <rect x="64" y="34" width="52" height="60" fill="#94e2d5" clip-path="url(#segment)"/>
+</svg>
