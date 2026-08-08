@@ -1,60 +1,63 @@
+English | [日本語](README.ja.md)
+
 # Auto Rich Diff for GitHub
 
-GitHub のプルリクエスト差分で、Markdown ファイル (`.md` / `.mdx` / `.markdown`) をまとめて rich diff に切り替える Chrome 拡張です。
+A Chrome extension that switches Markdown files (`.md` / `.mdx` / `.markdown`) to GitHub's rich diff view in bulk on pull request diff pages.
 
-diff の描画そのものは GitHub の機能を使います。この拡張がやるのは、GitHub が各ファイルに出している rich / source の切り替えボタンを、Markdown に限って押すことです。
+GitHub renders the diff itself. This extension only presses the rich / source toggle that GitHub already puts on each file, and only for Markdown.
 
-## できること
+## What it does
 
-拡張アイコンをクリックするとポップアップが開きます。
+Clicking the toolbar icon opens the popup.
 
-| 操作 | 動き |
+| Control | Behaviour |
 | --- | --- |
-| 常に rich diff で開く | 差分ページを開いたとき自動で切り替えます。初期値はオンです |
-| このページの表示 (Source / Rich) | 開いているページの Markdown をまとめて切り替えます。再読み込みは要りません |
+| Always open in rich diff | Switches Markdown files automatically when a diff page loads. On by default |
+| This page (Source / Rich) | Switches every Markdown file on the open page at once. No reload needed |
 
-`package.json` や `.yml` にも rich diff ボタンは出ますが、切り替えるのは Markdown だけです。
+`package.json` and `.yml` files also have a rich diff button, but only Markdown is switched.
 
-自動での切り替えは 1 つのボタンにつき 1 回しか行いません。開いた直後に rich へ揃えたあと手動で source に戻しても、拡張が再び rich にすることはありません。
+Automatic switching runs once per button. If you let the extension switch a file to rich and then switch it back to source by hand, the extension leaves it that way.
 
-## インストール
+## Installation
 
-1. Chrome で `chrome://extensions` を開きます
-2. 右上の「デベロッパー モード」をオンにします
-3. 「パッケージ化されていない拡張機能を読み込む」でこのディレクトリを選びます
+1. Open `chrome://extensions` in Chrome
+2. Turn on "Developer mode" in the top right
+3. Choose "Load unpacked" and select this directory
 
-すでに開いているプルリクエストのタブは、読み込み後に再読み込みしてください。
+Reload any pull request tabs you already had open.
 
-表示言語は Chrome の表示言語 (`chrome://settings/languages`) に従います。英語と日本語を用意しています。
+The interface follows your Chrome display language (`chrome://settings/languages`). English and Japanese are included.
 
-## 開発
+## Development
 
-ビルド手順はありません。`src/` をそのまま Chrome が読みます。開発用の依存は型チェックとテストのためだけに入っています。
+There is no build step. Chrome reads `src/` as it is. The dev dependencies exist only for type checking and tests.
 
 ```sh
 bun install
-bun test           # DOM を操作する処理の単体テスト
-bun run typecheck  # JSDoc の型注釈を tsc --checkJs で検証する
-bun run icons      # icons/*.svg から PNG を書き出す
-bun run package    # テストと型チェックを通してから dist/ に提出用の ZIP を作る
+bun test           # unit tests for the DOM logic
+bun run typecheck  # verifies the JSDoc annotations with tsc --checkJs
+bun run icons      # writes PNGs from icons/*.svg
+bun run package    # runs the tests and type check, then builds the store ZIP in dist/
 ```
 
-| ファイル | 役割 |
+| File | Role |
 | --- | --- |
-| `manifest.json` | Manifest V3 の宣言 |
-| `src/diff-toggle.js` | 切り替えボタンの特定とクリック。`chrome.*` に依存しない |
-| `src/content.js` | DOM の変化を監視し、`chrome.storage` の設定に従って適用する |
-| `src/popup.html` / `src/popup.js` | ポップアップの UI |
-| `src/types.d.ts` | ファイル間で受け渡す値の型宣言。実行には使わない |
-| `_locales/<言語>/messages.json` | 表示文言 |
-| `icons/*.svg` | アイコンの原本。PNG はここから書き出す |
+| `manifest.json` | Manifest V3 declaration |
+| `src/diff-toggle.js` | Finds and clicks the toggle buttons. Does not touch `chrome.*` |
+| `src/content.js` | Watches the DOM and applies the setting from `chrome.storage` |
+| `src/popup.html` / `src/popup.js` | The popup UI |
+| `src/types.d.ts` | Type declarations for values passed between files. Not used at runtime |
+| `_locales/<language>/messages.json` | Interface text |
+| `icons/*.svg` | Icon sources. The PNGs are written from these |
+| `store/` | Chrome Web Store listing text and screenshots |
 
-`diff-toggle.js` は `Document` を引数で受け取り `chrome.*` に触れないため、ブラウザ外でテストできます。`content.js` 側の監視タイミングと `chrome.storage` 連携には自動テストがなく、実際に拡張を読み込んで確認します。
+`diff-toggle.js` takes a `Document` as an argument and never touches `chrome.*`, so it can be tested outside a browser. The timing logic in `content.js` and the `chrome.storage` glue have no automated tests; they are checked by loading the extension.
 
-型は TypeScript ではなく JSDoc で書きます。ストアに提出する ZIP の中身とリポジトリのソースを一致させ、トランスパイル後のコードを審査に出さないためです。
+Types are written as JSDoc rather than TypeScript. This keeps the contents of the ZIP submitted to the store identical to the repository source, so no transpiled code goes to review.
 
-GitHub 側の変更で動かなくなったときは、`src/diff-toggle.js` 冒頭の `RICH_LABEL` / `SOURCE_LABEL` / `FILE_CONTAINER` を確認してください。新旧 2 種類の差分 UI をどう見分けているか、なぜ MutationObserver を止めないかといった判断は、各ファイルのコメントに書いてあります。
+If a change on GitHub's side breaks the extension, start with `RICH_LABEL` / `SOURCE_LABEL` / `FILE_CONTAINER` / `FILE_HEADER` at the top of `src/diff-toggle.js`. The reasoning behind how the two diff UIs are told apart, and why the MutationObserver is never disconnected, is in the comments of each file.
 
-## ライセンス
+## License
 
 [MIT](LICENSE)
