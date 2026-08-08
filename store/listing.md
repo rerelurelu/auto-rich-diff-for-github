@@ -82,17 +82,44 @@ page, so it can enable or disable the Source / Rich control and report how many
 Markdown files are on the page. Access is limited to the tab that is active when
 you click the toolbar icon.
 
+**ホスト権限**
+
+`host_permissions` は宣言していないが、`content_scripts` の `matches` もホストへの
+アクセスとして扱われるため、この欄の入力を求められる。
+
+The content script runs on https://github.com/*/*/pull/* so it can find the rich /
+source toggle buttons GitHub renders for each file in a pull request diff and click
+the ones that belong to Markdown files. It reads only the diff page structure and
+sends nothing to any server.
+
 **リモートコードの使用**
 
-No. All code is contained in the uploaded package.
+「リモートコードを使用しません」を選ぶ。
+
+All code is contained in the uploaded package. The extension loads no external
+scripts and evaluates no strings as code.
 
 ## データ使用
 
-「ユーザーデータを収集しない」を選ぶ。以下の 3 つの証明にチェックする。
+収集するデータの種類は 9 項目すべてチェックを外す。Google の定義では、収集とは
+ユーザーのデバイスの外へデータを送ることを指す。この拡張は差分ページの DOM を読むが、
+読んだ内容はその場でボタンを押す判断に使うだけで、送信も保存もしない。
+`chrome.storage` に入るのは `alwaysRich` の真偽値 1 個だけ。
 
-- ユーザーデータの取り扱いがデベロッパー プログラム ポリシーに準拠している
-- 承認済みの用途以外でユーザーデータを販売・譲渡しない
-- 信用調査や融資目的でユーザーデータを使用しない
+以下の 3 つの表明にチェックする。
+
+- 承認されている以外の用途で第三者にユーザーデータを販売・転送しない
+- アイテムの唯一の目的と関係のない目的でユーザーデータを使用・転送しない
+- 信用力を判断する目的または融資目的でユーザーデータを使用・転送しない
+
+## 追加フィールド
+
+| 項目 | 値 |
+| --- | --- |
+| 公式 URL | なし（Search Console で所有権を確認したサイトのみ選べる） |
+| ホームページ URL | https://github.com/rerelurelu/auto-rich-diff-for-github |
+| サポート URL | https://github.com/rerelurelu/auto-rich-diff-for-github/issues |
+| 成人向けコンテンツ | オフ |
 
 ## スクリーンショット
 
