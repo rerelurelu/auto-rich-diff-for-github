@@ -12,19 +12,26 @@ const LRM = '‎';
 
 /**
  * 新 UI の 1 ファイル分。rich と source が別ボタンで、ラベルは aria-labelledby の参照先にある。
+ * クラス名のハッシュ部分は実物と同じ形にしてある。
  * @param {string} path
  * @param {boolean} showingRich いま rich diff を表示しているか
+ * @param {string} [body] 差分本文に入れる HTML
  * @returns {string}
  */
-const newUiFile = (path, showingRich) => {
+const newUiFile = (path, showingRich, body = '') => {
   const id = `diff-${path.replace(/\W/g, '')}`;
   return `
     <div id="${id}">
-      <a href="#${id}">${LRM}${path}${LRM}</a>
-      <ul>
-        <li><button data-name="${path}:source" aria-pressed="${!showingRich}" aria-labelledby="${id}-src"></button></li>
-        <li><button data-name="${path}:rich" aria-pressed="${showingRich}" aria-labelledby="${id}-rich"></button></li>
-      </ul>
+      <div class="Diff-module__diffHeaderWrapper__UgUyv">
+        <div class="DiffFileHeader-module__diff-file-header__UuNN4">
+          <a href="#${id}">${LRM}${path}${LRM}</a>
+          <ul>
+            <li><button data-name="${path}:source" aria-pressed="${!showingRich}" aria-labelledby="${id}-src"></button></li>
+            <li><button data-name="${path}:rich" aria-pressed="${showingRich}" aria-labelledby="${id}-rich"></button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="markdown-body">${body}</div>
     </div>
     <span id="${id}-src" hidden>Display the source diff</span>
     <span id="${id}-rich" hidden>Display the rich diff</span>
@@ -35,12 +42,16 @@ const newUiFile = (path, showingRich) => {
  * 旧 UI の 1 ファイル分。1 つのボタンが交互に切り替わり、aria-pressed は持たない。
  * @param {string} path
  * @param {boolean} showingRich
+ * @param {string} [body] 差分本文に入れる HTML
  * @returns {string}
  */
-const oldUiFile = (path, showingRich) => `
+const oldUiFile = (path, showingRich, body = '') => `
   <div class="file" data-tagsearch-path="${path}">
-    <a data-name="${path}:toggle"
-       aria-label="${showingRich ? 'Display the source diff' : 'Display the rich diff'}"></a>
+    <div class="file-header">
+      <a data-name="${path}:toggle"
+         aria-label="${showingRich ? 'Display the source diff' : 'Display the rich diff'}"></a>
+    </div>
+    <div class="js-file-content">${body}</div>
   </div>
 `;
 
@@ -151,6 +162,35 @@ describe('applyMode (旧 UI)', () => {
 
   test('既に rich ならボタンのラベルが source 側なので押さない', () => {
     const { doc, clicked } = render(oldUiFile('README.md', true));
+    expect(applyMode(doc, 'rich')).toEqual({ switched: 0, markdownFiles: 0, rich: 0, source: 0 });
+    expect(clicked).toEqual([]);
+  });
+});
+
+describe('差分本文に仕込まれた要素', () => {
+  // GitHub の Markdown サニタイザは a 要素の title 属性を通すため、
+  // 本文まで探索するとプルリクエストの作成者が用意したリンクを押してしまう。
+  const injected = '<a data-name="injected" title="Display the rich diff" href="https://example.com/"></a>';
+
+  test('新 UI では押さないし数にも入れない', () => {
+    const { doc, clicked } = render(newUiFile('README.md', false, injected));
+    expect(applyMode(doc, 'rich')).toEqual({ switched: 1, markdownFiles: 1, rich: 1, source: 0 });
+    expect(clicked).toEqual(['README.md:rich']);
+    expect(countModes(doc)).toEqual({ rich: 0, source: 1 });
+  });
+
+  test('旧 UI でも押さない', () => {
+    const { doc, clicked } = render(oldUiFile('README.md', false, injected));
+    expect(applyMode(doc, 'rich')).toEqual({ switched: 1, markdownFiles: 1, rich: 1, source: 0 });
+    expect(clicked).toEqual(['README.md:toggle']);
+  });
+
+  test('ヘッダーの外にある切り替えボタンは見つけない', () => {
+    const { doc, clicked } = render(`
+      <div class="file" data-tagsearch-path="README.md">
+        <a data-name="outside" aria-label="Display the rich diff"></a>
+      </div>
+    `);
     expect(applyMode(doc, 'rich')).toEqual({ switched: 0, markdownFiles: 0, rich: 0, source: 0 });
     expect(clicked).toEqual([]);
   });
