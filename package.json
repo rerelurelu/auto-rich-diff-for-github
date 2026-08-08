@@ -1,6 +1,6 @@
 {
   "name": "auto-rich-diff-for-github",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "GitHub のプルリクエスト差分で Markdown の表示形式を一括切り替えする Chrome 拡張",
