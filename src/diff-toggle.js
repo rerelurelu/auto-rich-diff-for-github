@@ -34,6 +34,21 @@ globalThis.autoRichDiff = (() => {
   /** ファイル 1 件分の差分を囲む要素。新 UI は div#diff-<sha>、旧 UI は .file[data-tagsearch-path]。 */
   const FILE_CONTAINER = 'div[id^="diff-"], [data-tagsearch-path], .file';
 
+  /**
+   * ファイル 1 件分のヘッダー。切り替えボタンはこの中にしか置かれない。
+   *
+   * 探索範囲をヘッダーに限る理由は、差分本文をクリック対象から外すため。本文には
+   * プルリクエストの作成者が書いた内容がレンダリングされる。GitHub の Markdown
+   * サニタイザは a 要素の title 属性を通すので、title="Display the rich diff" を
+   * 持つリンクを .md ファイルに書いておくと、本文まで探索した場合にこの拡張が
+   * それをクリックし、タブが任意の URL へ遷移する。
+   *
+   * 新 UI のクラス名は CSS Modules のハッシュ付き
+   * (DiffFileHeader-module__diff-file-header__UuNN4) なので部分一致で見る。
+   * ハッシュは GitHub のデプロイごとに変わるが、その前の部分は残る。
+   */
+  const FILE_HEADER = '.file-header, [class*="DiffFileHeader-module"], [class*="diffHeaderWrapper"]';
+
   const DIFF_PAGE_PATH = /^\/[^/]+\/[^/]+\/pull\/\d+\/(files|changes)\b/;
 
   /**
@@ -99,13 +114,26 @@ globalThis.autoRichDiff = (() => {
    * @param {Document} doc
    * @returns {ToggleButton[]}
    */
-  const findToggleButtons = (doc) =>
-    /** @type {HTMLElement[]} */ ([...doc.querySelectorAll('button, a')]).flatMap((element) => {
-      const label = labelOf(element);
-      if (RICH_LABEL.test(label)) return [{ element, becomes: /** @type {Mode} */ ('rich') }];
-      if (SOURCE_LABEL.test(label)) return [{ element, becomes: /** @type {Mode} */ ('source') }];
-      return [];
-    });
+  const findToggleButtons = (doc) => {
+    /** 入れ子になったヘッダーに両方のセレクタが当たると同じ要素を 2 回拾うため、要素単位で除く。 */
+    const seen = new Set();
+
+    /** @type {ToggleButton[]} */
+    const buttons = [];
+
+    for (const header of doc.querySelectorAll(FILE_HEADER)) {
+      for (const element of /** @type {HTMLElement[]} */ ([...header.querySelectorAll('button, a')])) {
+        if (seen.has(element)) continue;
+        seen.add(element);
+
+        const label = labelOf(element);
+        if (RICH_LABEL.test(label)) buttons.push({ element, becomes: /** @type {Mode} */ ('rich') });
+        else if (SOURCE_LABEL.test(label)) buttons.push({ element, becomes: /** @type {Mode} */ ('source') });
+      }
+    }
+
+    return buttons;
+  };
 
   /**
    * ボタンから、そのファイルが今どちらで表示されているかを読む。
