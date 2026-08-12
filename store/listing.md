@@ -4,6 +4,8 @@
 
 ## 基本情報
 
+公開ページ: https://chromewebstore.google.com/detail/auto-rich-diff-for-github/kefpmlmdgmlpemadndmbjfmgibpndeka
+
 | 項目 | 値 |
 | --- | --- |
 | アイテム名 | `manifest.json` の `__MSG_extName__` から入る（Auto Rich Diff for GitHub） |

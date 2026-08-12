@@ -21,6 +21,10 @@ Automatic switching runs once per button. If you let the extension switch a file
 
 ## Installation
 
+[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/auto-rich-diff-for-github/kefpmlmdgmlpemadndmbjfmgibpndeka).
+
+To run this repository instead of the published version:
+
 1. Open `chrome://extensions` in Chrome
 2. Turn on "Developer mode" in the top right
 3. Choose "Load unpacked" and select this directory

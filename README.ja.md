@@ -21,6 +21,10 @@ diff の描画そのものは GitHub の機能を使います。この拡張が�
 
 ## インストール
 
+[Chrome ウェブストアからインストールできます](https://chromewebstore.google.com/detail/auto-rich-diff-for-github/kefpmlmdgmlpemadndmbjfmgibpndeka)。
+
+公開版ではなくこのリポジトリの内容を動かす場合は、次の手順です。
+
 1. Chrome で `chrome://extensions` を開きます
 2. 右上の「デベロッパー モード」をオンにします
 3. 「パッケージ化されていない拡張機能を読み込む」でこのディレクトリを選びます
